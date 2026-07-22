@@ -1,9 +1,2 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-export default defineConfig({
-  plugins: [react()],
-  optimizeDeps: {
-    include: ['@uiw/react-codemirror', '@codemirror/state', '@codemirror/view'],
-  },
-})
+// Arquivo desativado: O projeto agora usa Next.js
+export default {};

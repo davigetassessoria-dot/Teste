@@ -7,10 +7,10 @@ export interface FileContent {
   language: string;
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
-  images?: string[]; // Propriedade opcional para consistência no build
+  images?: string[];
 }
 
 interface AppState {
@@ -66,7 +66,7 @@ export const useAppStore = create<AppState>()(
       updateLastMessage: (content) =>
         set((state) => {
           const currentMessages = state.messages || [];
-          if (currentMessages.length === 0) return { messages: [{ role: 'assistant', content }] };
+          if (currentMessages.length === 0) return { messages: [{ role: 'assistant', content, images: [] }] };
           const newMessages = [...currentMessages];
           newMessages[newMessages.length - 1].content = content;
           return { messages: newMessages };
@@ -83,7 +83,7 @@ export const useAppStore = create<AppState>()(
       resetApp: () => set({ files: {}, messages: [], activeFile: null, isGenerating: false }),
     }),
     {
-      name: 'appforge-storage-v5',
+      name: 'appforge-storage-v6',
       skipHydration: true,
     }
   )

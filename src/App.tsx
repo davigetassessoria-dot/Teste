@@ -1,2 +1,2 @@
-// Arquivo legado removido para evitar erros de compilação no Next.js
+// Arquivo legado removido para evitar conflitos no Next.js
 export default function LegacyApp() { return null; }
