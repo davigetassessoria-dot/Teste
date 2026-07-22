@@ -10,6 +10,7 @@ export interface FileContent {
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  images?: string[]; // Propriedade opcional para evitar erros de build
 }
 
 interface AppState {

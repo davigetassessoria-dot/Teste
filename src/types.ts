@@ -3,6 +3,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   createdAt: number
+  images?: string[] // Torna opcional para consistência
 }
 
 export interface GeneratedFile {
