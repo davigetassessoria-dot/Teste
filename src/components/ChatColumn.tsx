@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Bot, User, RefreshCw } from 'lucide-react';
+import { Send, Bot, User, RefreshCw } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { puter } from '@heyputer/puter.js';
 
@@ -35,10 +35,10 @@ export function ChatColumn({ className }: { className?: string }) {
 
     const userPrompt = input.trim();
     setInput('');
-    addMessage({ role: 'user', content: userPrompt });
+    addMessage({ role: 'user', content: userPrompt, images: [] });
     setIsGenerating(true);
 
-    addMessage({ role: 'assistant', content: '' });
+    addMessage({ role: 'assistant', content: '', images: [] });
 
     try {
       const systemPrompt = `Você é um expert em criar interfaces React + Tailwind de alta qualidade através do AppForge.
