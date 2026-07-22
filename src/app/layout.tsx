@@ -1,24 +1,20 @@
 
-import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
-import "./globals.css";
+import './globals.css';
+import { Inter } from 'next/font-weight';
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" });
-
-export const metadata: Metadata = {
-  title: "AppForge | AI Web Builder",
-  description: "Generate and iterate full web applications with Grok Build.",
+export const metadata = {
+  title: 'AppForge — AI App Generator',
+  description: 'Forging modern apps with AI',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased selection:bg-indigo-500/30`}>
+      <body className="antialiased bg-[#09090b] text-[#e4e4e7] overflow-hidden">
         {children}
       </body>
     </html>

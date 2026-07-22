@@ -4,35 +4,33 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@heyputer/puter.js": "^2.1.0",
-    "@monaco-editor/react": "^4.7.0",
-    "@radix-ui/react-dialog": "^1.1.2",
-    "@radix-ui/react-scroll-area": "^1.2.0",
-    "@radix-ui/react-separator": "^1.1.0",
-    "@radix-ui/react-tabs": "^1.1.1",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
-    "jszip": "^3.10.1",
-    "lucide-react": "^0.454.0",
     "next": "15.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7",
-    "zustand": "^5.0.1"
+    "lucide-react": "^0.441.0",
+    "zustand": "^4.5.5",
+    "@uiw/react-codemirror": "^4.23.6",
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/lang-css": "^6.2.1",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "jszip": "^3.10.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2",
+    "@heyputer/puter.js": "^2.1.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5.6.3",
+    "@types/node": "^20.17.6",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "autoprefixer": "^10.4.20"
   }
 }
