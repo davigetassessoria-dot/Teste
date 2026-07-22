@@ -71,11 +71,11 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
         { role: "user" as const, content: `Ação: ${userPrompt}${currentFilesContext}`, images: [] }
       ];
 
-      const response = await puter.ai.chat(messagesForPuter, {
-        model: 'x-ai/grok-build-0.1',
-        stream: true,
-        temperature: 0.3
-      });
+     const response = await (puter.ai.chat as any)(messagesForPuter, {
+  model: 'x-ai/grok-build-0.1',
+  stream: true,
+  temperature: 0.3
+});
 
       let fullContent = '';
       for await (const part of response) {
