@@ -1,6 +1,7 @@
-
 import './globals.css';
-import { Inter } from 'next/font-weight';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'AppForge — AI App Generator',
@@ -14,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased bg-[#09090b] text-[#e4e4e7] overflow-hidden">
+      <body className={`${inter.className} antialiased bg-[#09090b] text-[#e4e4e7] overflow-hidden`}>
         {children}
       </body>
     </html>

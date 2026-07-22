@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -18,7 +17,6 @@ interface AppState {
   messages: ChatMessage[];
   activeFile: string | null;
   isGenerating: boolean;
-  // UI States
   activePanel: 'chat' | 'code' | 'preview' | 'settings';
   showChat: boolean;
   showCode: boolean;
@@ -48,28 +46,28 @@ export const useAppStore = create<AppState>()(
       showPreview: true,
 
       setFiles: (newFiles) => set((state) => {
-        const mergedFiles = { ...state.files, ...newFiles };
+        const mergedFiles = { ...(state.files || {}), ...(newFiles || {}) };
         const paths = Object.keys(mergedFiles);
         return { 
           files: mergedFiles,
-          activeFile: state.activeFile && mergedFiles[state.activeFile] ? state.activeFile : paths[0] || null
+          activeFile: state.activeFile && mergedFiles[state.activeFile] ? state.activeFile : (paths[0] || null)
         };
       }),
       updateFile: (path, content) =>
         set((state) => ({
           files: {
-            ...state.files,
-            [path]: { ...state.files[path], content },
+            ...(state.files || {}),
+            [path]: state.files?.[path] ? { ...state.files[path], content } : { name: path, content, language: 'javascript' },
           },
         })),
       addMessage: (message) =>
-        set((state) => ({ messages: [...state.messages, message] })),
+        set((state) => ({ messages: [...(state.messages || []), message] })),
       updateLastMessage: (content) =>
         set((state) => {
-          const newMessages = [...state.messages];
-          if (newMessages.length > 0) {
-            newMessages[newMessages.length - 1].content = content;
-          }
+          const currentMessages = state.messages || [];
+          if (currentMessages.length === 0) return { messages: [{ role: 'assistant', content }] };
+          const newMessages = [...currentMessages];
+          newMessages[newMessages.length - 1].content = content;
           return { messages: newMessages };
         }),
       setActiveFile: (path) => set({ activeFile: path }),
@@ -84,15 +82,8 @@ export const useAppStore = create<AppState>()(
       resetApp: () => set({ files: {}, messages: [], activeFile: null, isGenerating: false }),
     }),
     {
-      name: 'appforge-storage-v4',
-      partialize: (state) => ({ 
-        files: state.files, 
-        messages: state.messages, 
-        activeFile: state.activeFile,
-        showChat: state.showChat,
-        showCode: state.showCode,
-        showPreview: state.showPreview
-      }),
+      name: 'appforge-storage-v5',
+      skipHydration: true,
     }
   )
 );

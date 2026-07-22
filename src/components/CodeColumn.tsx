@@ -6,24 +6,23 @@ import { javascript } from '@codemirror/lang-javascript';
 import { css } from '@codemirror/lang-css';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { useAppStore } from '@/lib/store';
-import { FileCode, FileText, FolderOpen, Save, X } from 'lucide-react';
+import { FileCode, FileText, FolderOpen, Save } from 'lucide-react';
 
 export function CodeColumn({ className }: { className?: string }) {
-  const { files, activeFile, setActiveFile, updateFile } = useAppStore();
-  const currentFile = activeFile ? files[activeFile] : null;
+  const { files = {}, activeFile, setActiveFile, updateFile } = useAppStore();
+  const currentFile = activeFile && files ? files[activeFile] : null;
+  const filePaths = files ? Object.keys(files) : [];
 
   return (
     <div className={`flex flex-col bg-[#09090b] h-full ${className}`}>
-      {/* Header do Editor */}
       <div className="h-12 border-b border-[#27272a] flex items-center px-4 gap-4 bg-[#09090b]">
         <div className="flex items-center gap-2">
           <FileCode size={14} className="text-purple-400" />
           <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Editor</span>
         </div>
         
-        {/* Abas */}
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar max-w-[60%]">
-          {Object.keys(files).map((path) => (
+          {filePaths.map((path) => (
             <button
               key={path}
               onClick={() => setActiveFile(path)}
@@ -47,20 +46,19 @@ export function CodeColumn({ className }: { className?: string }) {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Explorer Lateral */}
         <div className="w-52 border-r border-[#27272a] bg-[#09090b] flex flex-col shrink-0">
           <div className="p-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
             <FolderOpen size={10} />
             Arquivos
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-0.5 forge-scroll">
-            {Object.keys(files).length === 0 ? (
+            {filePaths.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 opacity-20 text-center">
                 <FileCode size={24} className="mb-2" />
                 <span className="text-[10px]">Vazio</span>
               </div>
             ) : (
-              Object.keys(files).map((path) => (
+              filePaths.map((path) => (
                 <button
                   key={path}
                   onClick={() => setActiveFile(path)}
@@ -78,12 +76,11 @@ export function CodeColumn({ className }: { className?: string }) {
           </div>
         </div>
 
-        {/* Editor Principal */}
         <div className="flex-1 flex flex-col bg-[#09090b] overflow-hidden">
           {currentFile ? (
             <div className="flex-1 overflow-hidden relative">
               <CodeMirror
-                value={currentFile.content}
+                value={currentFile.content || ''}
                 theme={oneDark}
                 height="100%"
                 extensions={[

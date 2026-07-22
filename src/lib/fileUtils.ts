@@ -2,18 +2,22 @@ import { FileContent } from './store';
 
 /**
  * Constrói um documento HTML robusto para o Live Preview.
- * Suporta múltiplos arquivos e injeta Lucide Icons e Framer Motion (opcional).
+ * Suporta múltiplos arquivos e injeta Lucide Icons e hooks do React no escopo global.
  */
 export function buildPreviewHtml(files: FileContent[] | Record<string, FileContent>): string {
+  if (!files) return '';
+  
   const fileList = Array.isArray(files) ? files : Object.values(files);
-  const appFile = fileList.find(f => f.name.toLowerCase().includes('app'));
+  if (fileList.length === 0) return '';
+
+  const appFile = fileList.find(f => f.name && f.name.toLowerCase().includes('app'));
   if (!appFile) return '';
 
-  const cssFiles = fileList.filter(f => f.name.endsWith('.css'));
+  const cssFiles = fileList.filter(f => f.name && f.name.endsWith('.css'));
   const cssContent = cssFiles.map(f => f.content).join('\n\n');
 
   // Limpa imports/exports para execução direta no Babel Standalone
-  const componentCode = appFile.content
+  const componentCode = (appFile.content || '')
     .replace(/import\s+.*?\s+from\s+['"][^'"]+['"];?\n?/g, '')
     .replace(/export\s+default\s+function\s+App/g, 'function App')
     .replace(/export\s+default\s+App/g, '')
@@ -41,7 +45,6 @@ export function buildPreviewHtml(files: FileContent[] | Record<string, FileConte
       font-family: 'Inter', system-ui, -apple-system, sans-serif; 
     }
     #root { min-height: 100vh; }
-    /* Estilização para o scrollbar no preview */
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -55,7 +58,7 @@ export function buildPreviewHtml(files: FileContent[] | Record<string, FileConte
       useState, useEffect, useMemo, useCallback, useRef, useReducer, useContext, useLayoutEffect 
     } = React;
 
-    // Injeção global para o código gerado
+    // Disponibiliza hooks globalmente para o código gerado
     window.useState = useState;
     window.useEffect = useEffect;
     window.useMemo = useMemo;
@@ -70,13 +73,12 @@ export function buildPreviewHtml(files: FileContent[] | Record<string, FileConte
       ${componentCode}
 
       if (typeof App !== 'function') {
-        throw new Error('O componente "App" não foi definido. Certifique-se de definir uma function App().');
+        throw new Error('O componente "App" não foi definido ou exportado corretamente como uma função.');
       }
 
       const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(<App />);
       
-      // Inicializa ícones lucide se houver
       setTimeout(() => {
         if (window.lucide) {
           window.lucide.createIcons();
@@ -94,18 +96,12 @@ export function buildPreviewHtml(files: FileContent[] | Record<string, FileConte
           border: '1px solid #fee2e2', 
           borderRadius: '16px', 
           margin: '24px', 
-          fontFamily: 'monospace',
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+          fontFamily: 'monospace'
         }}>
-          <h2 style={{ marginTop: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>⚠️</span> Erro de Renderização
-          </h2>
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: '14px', lineHeight: '1.5', background: '#00000005', padding: '16px', borderRadius: '8px' }}>
+          <h2 style={{ marginTop: 0, fontSize: '20px' }}>⚠️ Erro no Preview</h2>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: '14px', background: '#00000005', padding: '16px' }}>
             {err.message}
           </pre>
-          <p style={{ fontSize: '13px', opacity: 0.8, marginTop: '16px' }}>
-            Dica: Verifique se todos os hooks estão sendo usados corretamente e se não há erros de sintaxe no código gerado.
-          </p>
         </div>
       );
     }

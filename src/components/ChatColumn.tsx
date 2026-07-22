@@ -1,21 +1,32 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Bot, User, Loader2, RefreshCw } from 'lucide-react';
+import { Send, Sparkles, Bot, User, RefreshCw } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { puter } from '@heyputer/puter.js';
 
 export function ChatColumn({ className }: { className?: string }) {
-  const { messages, addMessage, updateLastMessage, isGenerating, setIsGenerating, setFiles, files, setActiveFile } = useAppStore();
+  const { 
+    messages = [], 
+    addMessage, 
+    updateLastMessage, 
+    isGenerating, 
+    setIsGenerating, 
+    setFiles, 
+    files = {}, 
+    setActiveFile 
+  } = useAppStore();
+  
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: 'smooth'
-    });
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   }, [messages, isGenerating]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,7 +38,6 @@ export function ChatColumn({ className }: { className?: string }) {
     addMessage({ role: 'user', content: userPrompt });
     setIsGenerating(true);
 
-    // Adiciona mensagem vazia do assistente para o stream
     addMessage({ role: 'assistant', content: '' });
 
     try {
@@ -44,12 +54,12 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
   ]
 }`;
 
-      // Prepara o contexto
-      const currentFilesContext = Object.keys(files).length > 0 
-        ? `\nCÓDIGO ATUAL:\n${JSON.stringify(Object.entries(files).map(([p, f]) => ({ path: p, content: f.content })))}`
+      const currentFiles = files || {};
+      const currentFilesContext = Object.keys(currentFiles).length > 0 
+        ? `\nCÓDIGO ATUAL:\n${JSON.stringify(Object.entries(currentFiles).map(([p, f]) => ({ path: p, content: f.content })))}`
         : "";
 
-      const historyContext = messages.slice(-4).map(m => ({ role: m.role, content: m.content }));
+      const historyContext = (messages || []).slice(-4).map(m => ({ role: m.role, content: m.content }));
 
       const messagesForPuter = [
         { role: "system", content: systemPrompt },
@@ -57,7 +67,6 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
         { role: "user", content: `Ação: ${userPrompt}${currentFilesContext}` }
       ];
 
-      // Chamada via Puter.js com Streaming e Grok Build 0.1
       const response = await puter.ai.chat(messagesForPuter, {
         model: 'x-ai/grok-build-0.1',
         stream: true,
@@ -72,9 +81,7 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
         }
       }
 
-      // Tenta extrair e parsear o JSON da resposta
       try {
-        // Encontra o JSON dentro de blocos de código ou na string pura
         const jsonMatch = fullContent.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const result = JSON.parse(jsonMatch[0]);
@@ -102,12 +109,12 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
           }
         }
       } catch (parseErr) {
-        console.warn("Falha ao parsear artefatos, mas a mensagem foi mantida.", parseErr);
+        console.warn("Falha ao parsear artefatos", parseErr);
       }
 
     } catch (err: any) {
       console.error(err);
-      updateLastMessage(`Erro ao forjar aplicação: ${err.message}. Verifique sua conexão ou limite do Puter.`);
+      updateLastMessage(`Erro: ${err.message}`);
     } finally {
       setIsGenerating(false);
     }
@@ -118,7 +125,7 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
       <div className="h-12 border-b border-[#27272a] flex items-center justify-between px-4 bg-[#1a1a1f]/40">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-purple-400" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Grok Build 0.1 (via Puter)</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Grok Build 0.1</span>
         </div>
         {isGenerating && (
           <div className="flex items-center gap-2 text-[10px] text-purple-400 font-bold uppercase animate-pulse">
@@ -129,41 +136,30 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 forge-scroll">
-        {messages.length === 0 && (
+        {((messages || []).length === 0) && (
           <div className="h-full flex flex-col items-center justify-center text-center px-6 space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600">
-              <Bot size={32} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-zinc-200">Pronto para Forjar</p>
-              <p className="text-xs text-zinc-500 mt-1 max-w-[200px] mx-auto">
-                Descreva o app e o Grok Build 0.1 irá construí-lo em tempo real.
-              </p>
-            </div>
+            <Bot size={32} className="text-zinc-600" />
+            <p className="text-sm font-bold text-zinc-200">Pronto para Forjar</p>
           </div>
         )}
-        {messages.map((m, i) => (
+        {(messages || []).map((m, i) => (
           <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
-              m.role === 'assistant' 
-                ? 'bg-[#1a1a1f] border-[#27272a] text-purple-400' 
-                : 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-600/10'
+              m.role === 'assistant' ? 'bg-[#1a1a1f] border-[#27272a]' : 'bg-purple-600 border-purple-500'
             }`}>
-              {m.role === 'assistant' ? <Bot size={14} /> : <User size={14} />}
+              {m.role === 'assistant' ? <Bot size={14} className="text-purple-400" /> : <User size={14} className="text-white" />}
             </div>
             <div className={`p-3 rounded-2xl text-[13px] max-w-[85%] leading-relaxed ${
-              m.role === 'assistant' 
-                ? 'bg-[#1a1a1f] border border-[#27272a] text-zinc-300' 
-                : 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'
+              m.role === 'assistant' ? 'bg-[#1a1a1f] text-zinc-300' : 'bg-purple-600 text-white'
             }`}>
-              {m.content || (isGenerating && i === messages.length - 1 ? "..." : "")}
+              {m.content}
             </div>
           </div>
         ))}
       </div>
 
       <div className="p-4 bg-[#09090b]">
-        <form onSubmit={handleSubmit} className="relative group">
+        <form onSubmit={handleSubmit} className="relative">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -173,14 +169,10 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
                 handleSubmit(e as any); 
               } 
             }}
-            placeholder="Forje seu próximo app..."
-            className="w-full bg-[#111113] border border-[#27272a] rounded-xl px-4 py-3 pr-10 text-[13px] text-zinc-200 focus:outline-none focus:border-purple-600/50 transition-all resize-none min-h-[80px] placeholder:text-zinc-600"
+            placeholder="Descreva seu app..."
+            className="w-full bg-[#111113] border border-[#27272a] rounded-xl px-4 py-3 pr-10 text-[13px] text-zinc-200 focus:outline-none focus:border-purple-600/50 transition-all resize-none min-h-[80px]"
           />
-          <button 
-            type="submit" 
-            disabled={isGenerating || !input.trim()} 
-            className="absolute bottom-3 right-3 p-1.5 bg-purple-600 text-white rounded-lg disabled:opacity-30 hover:bg-purple-500 transition-all shadow-lg shadow-purple-900/20"
-          >
+          <button type="submit" disabled={isGenerating || !input.trim()} className="absolute bottom-3 right-3 p-1.5 bg-purple-600 text-white rounded-lg">
             <Send size={14} />
           </button>
         </form>
