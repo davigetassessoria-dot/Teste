@@ -8,9 +8,9 @@ export interface FileContent {
 }
 
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
-  images?: string[]; // Propriedade opcional para evitar erros de build
+  images?: string[]; // Propriedade opcional para consistência no build
 }
 
 interface AppState {

@@ -59,12 +59,16 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
         ? `\nCÓDIGO ATUAL:\n${JSON.stringify(Object.entries(currentFiles).map(([p, f]) => ({ path: p, content: f.content })))}`
         : "";
 
-      const historyContext = (messages || []).slice(-4).map(m => ({ role: m.role, content: m.content }));
+      const historyContext = (messages || []).slice(-4).map(m => ({ 
+        role: m.role as "user" | "assistant" | "system", 
+        content: m.content,
+        images: m.images || []
+      }));
 
       const messagesForPuter = [
-        { role: "system", content: systemPrompt },
+        { role: "system" as const, content: systemPrompt, images: [] },
         ...historyContext,
-        { role: "user", content: `Ação: ${userPrompt}${currentFilesContext}` }
+        { role: "user" as const, content: `Ação: ${userPrompt}${currentFilesContext}`, images: [] }
       ];
 
       const response = await puter.ai.chat(messagesForPuter, {
@@ -124,8 +128,7 @@ IMPORTANTE: Toda a sua resposta deve ser um objeto JSON puro no seguinte formato
     <div className={`flex flex-col bg-[#111113] rounded-xl border border-[#27272a] overflow-hidden shadow-2xl ${className}`}>
       <div className="h-12 border-b border-[#27272a] flex items-center justify-between px-4 bg-[#1a1a1f]/40">
         <div className="flex items-center gap-2">
-          <Sparkles size={14} className="text-purple-400" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Grok Build 0.1</span>
+          <span className="text-purple-400 font-bold uppercase tracking-widest text-[10px]">Grok Build 0.1</span>
         </div>
         {isGenerating && (
           <div className="flex items-center gap-2 text-[10px] text-purple-400 font-bold uppercase animate-pulse">

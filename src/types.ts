@@ -1,9 +1,9 @@
 export interface ChatMessage {
   id: string
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'system'
   content: string
   createdAt: number
-  images?: string[] // Torna opcional para consistência
+  images?: string[] // Propriedade opcional para evitar erros de compilação
 }
 
 export interface GeneratedFile {
