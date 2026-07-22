@@ -1,4 +1,3 @@
-import { supabase } from './supabase'
 import type { Project } from '../types'
 
 const STORAGE_KEY = 'appforge_project'
