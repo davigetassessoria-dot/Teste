@@ -1,7 +1,7 @@
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
-  images?: string[];  // ← torne opcional (adicione o ?)
+  images?: any[];   // ← muda para any[] ou string[]
 }
 
 export interface GeneratedFile {
